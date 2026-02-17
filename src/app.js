@@ -3,10 +3,12 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import config from './config/config.js';
+import morgan from 'morgan';
 
 
 import authRoutes from './routes/auth.route.js';
-import morgan from 'morgan';
+import rentalRoutes from './routes/rental.routes.js'
+
 
 const app = express();
 
@@ -30,5 +32,6 @@ passport.use(new GoogleStrategy({
 
 
 app.use('/api/auth', authRoutes);
+app.use('/api/rentals', rentalRoutes)
 
 export default app;
