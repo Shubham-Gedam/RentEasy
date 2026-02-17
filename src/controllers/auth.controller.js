@@ -80,31 +80,58 @@ export async function loginController(req, res) {
 }
 
 export async function googleAuthCallback(req, res) {
-    try {
         const user = req.user;
 
-        if (!user) {
-            return res.status(400).json({ message: 'Google authentication failed' });
-        }
+        const isUserAlreadyExists = await UserModel.findOne({
+            $or:[
+                {email: user.emails[0].value},
+                {googleId: user.id}
+            ],
+            if(isUserAlreadyExists){
+            const token = jwt.sign({
+                id: isUserAlreadyExists._id,
+                role: isUserAlreadyExists.role,
+                fullname: isUserAlreadyExists.fullname
+            }, config.JWT_SECRET, { expiresIn: '2d' });
 
-        const token = jwt.sign({
-            id: user._id || user.id,
-            role: user.role || 'user',
-            fullname: user.fullname || {}
-        }, config.JWT_SECRET, { expiresIn: '2d' });
+            res.cookie("token", token);
 
-        res.cookie('token', token);
-
-        res.status(200).json({
-            message: 'Authentication successful',
-            user: {
-                id: user._id || user.id,
-                email: user.email,
-                fullname: user.fullname,
-                role: user.role || 'user'
+            return res.status(200).json({
+                message: "Google authentication successful",
+                user: {
+                    id: isUserAlreadyExists._id,
+                    email: isUserAlreadyExists.email,
+                    fullname: isUserAlreadyExists.fullname,
+                    role: isUserAlreadyExists.role
+                }
+            })
             }
         });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }
+
+        const newUser = await UserModel.create({
+            googleId: user.id,
+            email: user.emails[0].value,
+            fullname:{
+                firstname: user.name.givenName,
+                lastname: user.name.familyName,
+            }
+        })
+
+        const token =jwt.sign({
+            id: newUser._id,
+            role: newUser.role,
+        }, config.JWT_SECRET)
+
+        res.cookie("token", token);
+
+        res.status(201).json({
+            message: "Google authentication successful",
+            user: {
+                id: newUser._id,
+                email: newUser.email,
+                fullname: newUser.fullname,
+                role: newUser.role
+            }
+        })
+
 }

@@ -17,12 +17,12 @@ const userSchema = new mogoose.Schema({
             required: true,
         }
     },
-    password:{
-        type: String,
-        // required: function() { return !this.googleId; } ,
-    },
     googleId:{
         type: String,
+    },
+    password:{
+        type: String,
+        required: function() { return !this.googleId; } ,
     },
     role:{
         type: String,
