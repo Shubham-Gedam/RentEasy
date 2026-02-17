@@ -1,0 +1,110 @@
+import UserModel from "../models/user.model.js";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import config from "../config/config.js";
+
+
+export async function registerController(req, res) {
+    
+    const { email,password, fullname:{ firstname, lastname},  role = "user" } = req.body;
+
+    const isUserAlreadyExist = await UserModel.findOne({ email });
+
+    if (isUserAlreadyExist) {
+        return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const user = await new UserModel({
+        email,
+        password: hash,
+        fullname: {
+            firstname,
+            lastname
+        },
+        role
+    });
+    await user.save();
+
+   const token = jwt.sign({
+        id: user._id,
+        role: user.role,
+        fullname: user.fullname
+    }, config.JWT_SECRET, { expiresIn: '2d' });
+
+    res.cookie('token', token)
+
+    res.status(201).json({
+    message: "user register succesfully",
+    user: {
+      email: user.email,
+      _id: user._id,
+      fullname: user.fullname,
+    },
+  });
+}
+
+export async function loginController(req, res) {
+
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+        return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: "Invalid email or password" });
+    }
+    const token = jwt.sign({
+        id: user._id,
+        role: user.role,
+        fullname: user.fullname
+    }, config.JWT_SECRET, { expiresIn: '2d' });
+    
+    res.cookie("token", token );
+
+    res.status(200).json({
+        message: "User logged in successfully",
+        user:{
+            id: user._id,
+            email: user.email,
+            fullname: user.fullname,
+            role: user.role,
+        }
+    })
+}
+
+export async function googleAuthCallback(req, res) {
+    try {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(400).json({ message: 'Google authentication failed' });
+        }
+
+        const token = jwt.sign({
+            id: user._id || user.id,
+            role: user.role || 'user',
+            fullname: user.fullname || {}
+        }, config.JWT_SECRET, { expiresIn: '2d' });
+
+        res.cookie('token', token);
+
+        res.status(200).json({
+            message: 'Authentication successful',
+            user: {
+                id: user._id || user.id,
+                email: user.email,
+                fullname: user.fullname,
+                role: user.role || 'user'
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+}
