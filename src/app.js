@@ -8,6 +8,7 @@ import morgan from 'morgan';
 
 import authRoutes from './routes/auth.route.js';
 import rentalRoutes from './routes/rental.routes.js'
+import productRoutes from './routes/product.route.js'
 
 
 const app = express();
@@ -33,5 +34,7 @@ passport.use(new GoogleStrategy({
 
 app.use('/api/auth', authRoutes);
 app.use('/api/rentals', rentalRoutes)
+app.use('/api/products', productRoutes)
+
 
 export default app;
