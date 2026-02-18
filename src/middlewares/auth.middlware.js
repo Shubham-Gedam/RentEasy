@@ -1,4 +1,7 @@
 import {body, validationResult} from 'express-validator';
+import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
+import UserModel from '../models/user.model.js';
 
 async function validate(req, res, next) {
 
@@ -25,3 +28,37 @@ export const loginValidationRules = [
     body('password').notEmpty().withMessage('Password is required'),
     validate
 ]
+
+
+export const protect = async (req, res, next) => {
+  let token;
+
+  // Token cookie se le (tera login/register mein 'token' cookie set kar raha hai)
+  if (req.cookies?.token) {
+    token = req.cookies.token;
+  }
+  // Ya header se (Bearer token) – future proof
+  else if (req.headers.authorization?.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: "Not authorized - Please login" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+
+    // User fetch kar (password exclude)
+    req.user = await UserModel.findById(decoded.id).select('-password');
+
+    if (!req.user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    next();
+  } catch (err) {
+    console.error("JWT Error:", err.message);
+    return res.status(401).json({ message: "Not authorized - Invalid/expired token" });
+  }
+};

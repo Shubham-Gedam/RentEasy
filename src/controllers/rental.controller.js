@@ -78,10 +78,25 @@ export async function returnRentalController(req,res){
 export async function getMyRentalsController(req, res) {
   try {
     
-    const userId = req.user._id; 
+    const userId = req.user._id;
 
     const rentals = await Rental.find({ user: userId }).populate("product");
-    res.status(200).json(rentals);
+    res.status(200).json({
+  success: true,
+  count: rentals.length,
+  activeCount: rentals.filter(r => r.status === 'ACTIVE').length,
+  data: rentals.map(r => ({
+    id: r._id,
+    productName: r.product.name,
+    category: r.product.category,
+    tenure: r.tenure,
+    startDate: r.startDate.toISOString().split('T')[0],
+    endDate: r.endDate.toISOString().split('T')[0],
+    totalAmount: r.totalAmount,
+    status: r.status,
+    paymentStatus: r.paymentStatus
+  }))
+});
   } catch (error) {
     res.status(500).json({ message: "Auth failed or Server Error" });
   }
