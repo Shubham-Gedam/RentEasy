@@ -6,6 +6,7 @@ export const createProduct = async (req, res) => {
   try {
     const product = await ProductModel.create({
       ...req.body,
+      vendor: req.user._id,
       createdBy: req.user._id
     });
 

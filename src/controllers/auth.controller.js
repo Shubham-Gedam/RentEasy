@@ -6,7 +6,7 @@ import config from "../config/config.js";
 
 export async function registerController(req, res) {
     
-    const { email,password, fullname:{ firstname, lastname},  role = "user" } = req.body;
+    const { email,password, fullname:{ firstname, lastname},  role  } = req.body;
 
     const isUserAlreadyExist = await UserModel.findOne({ email });
 
@@ -23,7 +23,7 @@ export async function registerController(req, res) {
         firstname,
         lastname
     },
-    role: "user" // force USER
+    role: role || "user" // force USER
 });
     await user.save();
 

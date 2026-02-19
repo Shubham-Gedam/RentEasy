@@ -3,48 +3,58 @@ import Product from "../models/product.model.js";
 
 
 // ✅ CREATE RENTAL
-export async function createRentalController(req,res){
-    const { productId, tenure, userId  } = req.body;
+export async function createRentalController(req, res) {
+  try {
+    const { productId, tenure, deliveryDate, deliveryAddress } = req.body;
 
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).json({ 
-        message: "Product not found" 
-        });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     if (!product.tenureOptions.includes(tenure)) {
-      return res.status(400).json({ 
-        message: "Invalid tenure selected" 
-        });
+      return res.status(400).json({ message: "Invalid tenure selected" });
     }
 
     if (product.availableStock <= 0) {
       return res.status(400).json({ message: "Product out of stock" });
     }
 
-    const totalAmount = product.monthlyRent * tenure + product.securityDeposit;
+    // ✅ Calculate total amount
+    const totalAmount =
+      product.monthlyRent * tenure + product.securityDeposit;
 
-    const endDate = new Date();
+    // ✅ Calculate end date from delivery date
+    const endDate = new Date(deliveryDate);
     endDate.setMonth(endDate.getMonth() + tenure);
 
+    // ✅ Create rental with vendor snapshot
     const rental = await Rental.create({
-      user: userId,
+      user: req.user._id,        
       product: productId,
+      vendor: product.vendor,   
       tenure,
+      deliveryDate,
+      deliveryAddress,
       endDate,
       totalAmount,
     });
 
+    // ✅ Reduce stock
     product.availableStock -= 1;
     await product.save();
 
     res.status(201).json({
+      success: true,
       message: "Rental created successfully",
       rental,
     });
-};
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 
 
 

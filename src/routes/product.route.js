@@ -8,10 +8,10 @@ const router = express.Router();
 // router.get("/", authMiddleware.getAllProducts);
 // router.get("/:id", authMiddleware.getSingleProduct);
 
-router.post("/create", authMiddleware.protect, authMiddleware.authorizeRoles("admin"), productController.createProduct);
+router.post("/create", authMiddleware.protect, authMiddleware.authorizeRoles("admin","vendor"), productController.createProduct);
 
-router.put("/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin"), productController.updateProduct);
+router.put("/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin","vendor"), productController.updateProduct);
 
-router.delete("/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin"), productController.deleteProduct);
+router.delete("/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin","vendor"), productController.deleteProduct);
 
 export default router;

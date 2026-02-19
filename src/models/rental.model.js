@@ -18,6 +18,38 @@ const rentalSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    damageReported: {
+      type: Boolean,
+      default: false,
+    },
+
+    damageNotes: String,
+
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    deliveryDate: {
+      type: Date,
+      required: true,
+    },
+
+    pickupDate: {
+      type: Date,
+    },
+
+    deliveryAddress: {
+      type: String,
+      required: true,
+    },
+
+    deliveryStatus: {
+      type: String,
+      enum: ["PENDING", "SCHEDULED", "OUT_FOR_DELIVERY", "DELIVERED"],
+      default: "PENDING",
+    },
 
     startDate: {
       type: Date,
@@ -45,9 +77,9 @@ const rentalSchema = new mongoose.Schema(
       default: "ACTIVE",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const rentModel = mongoose.model("Rental", rentalSchema)
+const rentModel = mongoose.model("Rental", rentalSchema);
 
 export default rentModel;
