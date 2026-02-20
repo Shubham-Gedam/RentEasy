@@ -7,10 +7,21 @@ export async function createRentalController(req, res) {
   try {
     const { productId, tenure, deliveryDate, deliveryAddress } = req.body;
 
+    // ← Extra validation (better error message)
+    if (!deliveryDate || !deliveryAddress) {
+      return res.status(400).json({ 
+        message: "deliveryDate and deliveryAddress are required" 
+      });
+    }
+
     const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (!product.vendor) {
+      return res.status(400).json({ message: "Product has no vendor assigned" });
     }
 
     if (!product.tenureOptions.includes(tenure)) {
@@ -21,27 +32,28 @@ export async function createRentalController(req, res) {
       return res.status(400).json({ message: "Product out of stock" });
     }
 
-    // ✅ Calculate total amount
-    const totalAmount =
-      product.monthlyRent * tenure + product.securityDeposit;
+    // Calculate endDate safely
+    const deliveryDateObj = new Date(deliveryDate);
+    if (isNaN(deliveryDateObj.getTime())) {
+      return res.status(400).json({ message: "Invalid deliveryDate format. Use YYYY-MM-DD" });
+    }
 
-    // ✅ Calculate end date from delivery date
-    const endDate = new Date(deliveryDate);
+    const endDate = new Date(deliveryDateObj);
     endDate.setMonth(endDate.getMonth() + tenure);
 
-    // ✅ Create rental with vendor snapshot
+    const totalAmount = product.monthlyRent * tenure + product.securityDeposit;
+
     const rental = await Rental.create({
-      user: req.user._id,        
+      user: req.user._id,
       product: productId,
-      vendor: product.vendor,   
+      vendor: product.vendor,    // ← yeh ab safe hai kyunki upar check kiya
       tenure,
-      deliveryDate,
+      deliveryDate: deliveryDateObj,   // Date object bhej do (better)
       deliveryAddress,
       endDate,
       totalAmount,
     });
 
-    // ✅ Reduce stock
     product.availableStock -= 1;
     await product.save();
 
@@ -51,6 +63,7 @@ export async function createRentalController(req, res) {
       rental,
     });
   } catch (error) {
+    console.error(error);   // ← terminal mein full stack dekhne ke liye
     res.status(500).json({ message: error.message });
   }
 }
