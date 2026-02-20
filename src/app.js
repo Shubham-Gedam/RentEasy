@@ -12,7 +12,7 @@ import productRoutes from './routes/product.route.js'
 import cartRoutes from "./routes/cart.route.js";
 import maintenanceRoutes from "./routes/maintenance.routes.js";
 import vendorRoutes from './routes/vendor.route.js'
-
+import adminRoutes from './routes/admin.routes.js'
 
 
 const app = express();
@@ -42,6 +42,7 @@ app.use('/api/products', productRoutes)
 app.use("/api/cart", cartRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use('/api/vendor', vendorRoutes)
+app.use('/api/admin', adminRoutes)
 
 
 export default app;
