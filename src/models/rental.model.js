@@ -25,6 +25,9 @@ const rentalSchema = new mongoose.Schema(
 
     damageNotes: String,
 
+    damageApproved: { type: Boolean, default: null },
+    damageAdminNotes: String,
+
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

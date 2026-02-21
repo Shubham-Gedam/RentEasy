@@ -12,6 +12,8 @@ router.get("/products", authMiddlware.protect, authMiddlware.authorizeRoles("ven
 
 router.put("/rental/:id/pickup", authMiddlware.protect, authMiddlware.authorizeRoles("vendor"), vendorController.updatePickupDate);
 
+router.put("/rental/:id/damage", authMiddlware.protect, authMiddlware.authorizeRoles("vendor"), vendorController.reportDamage);
+
 
 
 export default router;
