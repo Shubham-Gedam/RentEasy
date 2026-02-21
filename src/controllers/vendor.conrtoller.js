@@ -1,5 +1,6 @@
 import Rental from "../models/rental.model.js";
 import Maintenance from "../models/maintenance.model.js";
+import Product from "../models/product.model.js";   // ← yeh line daal
 
 /* ---------------- UPDATE DELIVERY STATUS ---------------- */
 export const updateDeliveryStatus = async (req, res) => {
@@ -83,6 +84,68 @@ export const reportDamage = async (req, res) => {
       rental,
     });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ----------------  VENDOR PRODUCT LIST ---------------- */
+export const getVendorProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ vendor: req.user._id })
+      .sort({ createdAt: -1 })
+      .select('name category monthlyRent securityDeposit availableStock city');
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updatePickupDate = async (req, res) => {
+  try {
+    const { pickupDate } = req.body;
+
+    if (!pickupDate) {
+      return res.status(400).json({ message: "pickupDate is required (YYYY-MM-DD format)" });
+    }
+
+    const rental = await Rental.findById(req.params.id).populate("product");
+
+    if (!rental) {
+      return res.status(404).json({ message: "Rental not found" });
+    }
+
+    if (!rental.product.vendor) {
+      return res.status(400).json({ message: "Vendor not linked to product" });
+    }
+
+    if (rental.product.vendor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const pickupDateObj = new Date(pickupDate);
+    if (isNaN(pickupDateObj.getTime())) {
+      return res.status(400).json({ message: "Invalid pickupDate format" });
+    }
+
+    if (pickupDateObj < new Date()) {
+      return res.status(400).json({ message: "Pickup date cannot be in the past" });
+    }
+
+    rental.pickupDate = pickupDateObj;
+    await rental.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Pickup date updated successfully",
+      rental,
+    });
+  } catch (error) {
+    console.error("Pickup update error:", error);
     res.status(500).json({ message: error.message });
   }
 };
