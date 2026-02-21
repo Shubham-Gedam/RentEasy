@@ -5,8 +5,8 @@ import * as authMiddleware from "../middlewares/auth.middlware.js";
 
 const router = express.Router();
 
-// router.get("/", authMiddleware.getAllProducts);
-// router.get("/:id", authMiddleware.getSingleProduct);
+router.get("/", productController.getAllProducts);
+router.get("/:id", productController.getSingleProduct);
 
 router.post("/create", authMiddleware.protect, authMiddleware.authorizeRoles("admin","vendor"), productController.createProduct);
 

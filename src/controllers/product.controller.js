@@ -24,11 +24,21 @@ export const createProduct = async (req, res) => {
 // 📦 GET ALL PRODUCTS (Public)
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await ProductModel.find()
-      .populate("createdBy", "email fullname");
+    const { category, city } = req.query;  // query params
 
-    res.status(200).json(products);
+    const filter = {};
+    if (category) filter.category = category;  // Furniture / Appliance
+    if (city) filter.city = city;              // Nagpur / Delhi etc.
 
+    const products = await ProductModel.find(filter)
+      .populate("vendor", "fullname email")   // optional: vendor info
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      products
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
