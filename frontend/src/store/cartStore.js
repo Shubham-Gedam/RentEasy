@@ -1,19 +1,29 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useCartStore = create((set) => ({
-  cart: [],
-  
-  addToCart: (product) => set((state) => {
-    const exists = state.cart.find(item => item.id === product.id);
-    if (exists) return { cart: state.cart }; // Prevent duplicates
-    return { cart: [...state.cart, product] };
-  }),
+const useCartStore = create(
+  persist(
+    (set) => ({
+      cart: [],
+      rentals: [], 
+      
+      addToCart: (product) => set((state) => ({ 
+        cart: [...state.cart, product] 
+      })),
+      
+      removeFromCart: (id) => set((state) => ({ 
+        cart: state.cart.filter((item) => item.id !== id) 
+      })),
 
-  removeFromCart: (id) => set((state) => ({
-    cart: state.cart.filter(item => item.id !== id)
-  })),
+      confirmBooking: () => set((state) => ({
+        rentals: [...state.rentals, ...state.cart], 
+        cart: [] 
+      })),
 
-  clearCart: () => set({ cart: [] })
-}));
+      clearCart: () => set({ cart: [] }),
+    }),
+    { name: 'rent-ease-cart-storage' }
+  )
+);
 
 export default useCartStore;

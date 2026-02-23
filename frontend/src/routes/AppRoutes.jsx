@@ -3,7 +3,10 @@ import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import ProductDetail from '../pages/ProductDetail';
 import Cart from '../pages/Cart'; // 1. Pehle import karo
-// import VendorDashboard from '../pages/vendor/Dashboard';
+import VendorDashboard from '../vendor/Dashboard';
+import MyRentals from '../pages/MyRentals'
+// import Login from '../auth/Login'
+import  CheckCheck  from '../pages/Checkout'
 
 const AppRoutes = () => {
   return (
@@ -14,7 +17,11 @@ const AppRoutes = () => {
       {/* 2. YE WALI LINE ADD KARO */}
       <Route path="/cart" element={<Cart />} /> 
       
-      {/* <Route path="/vendor/dashboard" element={<VendorDashboard />} /> */}
+      <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+      <Route path="/rentals" element={<MyRentals />} />
+
+      {/* <Route path="/login" element={<Login />} /> */}
+      <Route path="/checkout" element={<CheckCheck />} />
     </Routes>
   );
 };
