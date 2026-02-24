@@ -13,7 +13,9 @@ const useProductStore = create(
       addProduct: (newProduct) => set((state) => ({ products: [newProduct, ...state.products] })),
       removeProduct: (id) => set((state) => ({ products: state.products.filter(p => p.id !== id) })),
     }),
-    { name: 'rent-ease-products' }
+    { name: 'rent-ease-products' },
+    
   )
 );
+
 export default useProductStore;

@@ -1,45 +1,73 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Calendar, ChevronRight } from 'lucide-react';
+import { Package, Calendar, RefreshCcw, ShieldAlert } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 
 const MyRentals = () => {
-  const { rentals } = useCartStore();
+  const { rentals, returnProduct } = useCartStore();
   const navigate = useNavigate();
 
-  if (!rentals || rentals.length === 0) {
+  const handleReturn = (id, name) => {
+    if (window.confirm(`Kya aap sach mein ${name} wapas karna chahte hain? Refund process start ho jayega.`)) {
+      returnProduct(id);
+      alert("Return Request Raised! 🚛 Humara agent 24 ghante mein pick-up ke liye aayega.");
+    }
+  };
+
+  if (rentals.length === 0) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center p-8 text-center text-left">
-        <Package size={60} className="text-gray-200 mb-6" />
-        <h2 className="text-3xl font-black text-gray-900 mb-2 italic tracking-tighter">No Active Rentals.</h2>
-        <button onClick={() => navigate('/')} className="mt-6 bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all">Start Renting</button>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center">
+        <Package size={60} className="text-gray-200 mb-4" />
+        <h2 className="text-2xl font-black italic text-gray-400 uppercase tracking-tighter">No Active Rentals</h2>
+        <button onClick={() => navigate('/')} className="mt-6 bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg">Start Renting</button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16 text-left">
-      <h1 className="text-4xl font-black text-gray-900 tracking-tighter italic uppercase mb-12">Active Rentals<span className="text-blue-600">.</span></h1>
-      <div className="space-y-6">
-        {rentals.map((item, idx) => (
-          <div key={`${item.id}-${idx}`} className="bg-white border border-gray-100 rounded-[32px] p-6 flex flex-col md:flex-row items-center gap-8 hover:shadow-lg transition-all">
-            <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-50 relative">
-              <img src={item.imageUrl || item.image} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-green-500/10 border-2 border-green-500/20 rounded-2xl"></div>
-            </div>
-            <div className="flex-1 w-full">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="bg-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Live</span>
+    <div className="max-w-6xl mx-auto px-8 py-16 text-left">
+      <h1 className="text-4xl font-black italic tracking-tighter mb-10 uppercase">My Active Fleet<span className="text-blue-600">.</span></h1>
+      
+      <div className="grid grid-cols-1 gap-6">
+        {rentals.map((item) => (
+          <div key={item.id} className="bg-white border border-gray-100 rounded-[40px] p-8 flex flex-col md:flex-row items-center justify-between shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-8">
+              <div className="w-24 h-24 rounded-[24px] overflow-hidden bg-gray-50 flex-shrink-0">
+                <img src={item.imageUrl || item.image} className="w-full h-full object-cover" alt="" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">{item.name}</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div><p className="text-[10px] font-black text-gray-400 uppercase">Rent</p><p className="font-bold">₹{item.rent || item.baseRent}/mo</p></div>
-                <div><p className="text-[10px] font-black text-gray-400 uppercase">Next Billing</p><p className="font-bold text-blue-600">April 2024</p></div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="bg-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Active</span>
+                  <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1"><Calendar size={12}/> Since: {new Date().toLocaleDateString()}</span>
+                </div>
+                <h3 className="text-2xl font-black text-gray-900 tracking-tight">{item.name}</h3>
+                <p className="text-gray-500 font-bold italic mt-1">Rent: ₹{item.rent || item.baseRent}/mo</p>
               </div>
             </div>
-            <button className="bg-gray-50 p-4 rounded-2xl hover:bg-gray-100 transition-all"><ChevronRight /></button>
+
+            <div className="mt-6 md:mt-0 flex gap-4">
+              {/* Return Button */}
+              <button 
+                onClick={() => handleReturn(item.id, item.name)}
+                className="flex items-center gap-2 bg-gray-50 text-gray-500 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 hover:text-red-600 transition-all border border-gray-100"
+              >
+                <RefreshCcw size={16} /> Return Item
+              </button>
+              
+              <button className="bg-blue-50 text-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100">
+                Download Agreement
+              </button>
+            </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-12 p-8 bg-orange-50 rounded-[32px] border border-orange-100 flex items-start gap-4">
+        <ShieldAlert className="text-orange-500 flex-shrink-0" />
+        <div>
+          <h4 className="font-bold text-orange-900 uppercase text-xs tracking-widest">Rental Policy</h4>
+          <p className="text-sm text-orange-800/70 mt-1 italic">Agar aap product ko delivery ke waqt wapas karte hain, toh full deposit refund hoga. Pick-up charge ₹299/- lagega.</p>
+        </div>
       </div>
     </div>
   );
