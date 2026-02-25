@@ -13,6 +13,9 @@ import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import MyRentals from "../pages/MyRentals";
 import CheckCheck from "../pages/Checkout";
+import Login from "../auth/Login";       
+import Register from "../auth/Register";
+import ProfilePage from '../pages/ProfilePage'
 
 // Vendor Pages
 import VendorDashboard from "../vendor/Dashboard";
@@ -28,10 +31,13 @@ const AppRoutes = () => {
       {/* 🏠 CUSTOMER FLOW (Wrapped in MainLayout) */}
       <Route >
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} /> 
+      <Route path="/register" element={<Register />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/rentals" element={<MyRentals />} />
         <Route path="/checkout" element={<CheckCheck />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* 🏢 VENDOR FLOW (Wrapped in VendorLayout + Protected) */}

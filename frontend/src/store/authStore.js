@@ -2,14 +2,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// src/store/authStore.js
 const useAuthStore = create(
   persist(
     (set) => ({
-      user: { name: 'John Doe', role: 'user' },
-      isAuthenticated: true, // Shuru mein true rakho testing ke liye
+      user: null, 
+      isAuthenticated: false,
+      // 'login' ki jagah 'setUser' kar do
+      setUser: (userData) => set({ user: userData, isAuthenticated: true }), 
       setRole: (role) => set((state) => ({ user: { ...state.user, role } })),
-      login: (userData) => set({ user: userData, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => {
+        localStorage.removeItem('token');
+        set({ user: null, isAuthenticated: false });
+      },
     }),
     { name: 'auth-storage' }
   )

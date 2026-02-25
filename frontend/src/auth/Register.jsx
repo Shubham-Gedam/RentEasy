@@ -3,12 +3,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../apis/axiosInstance';
 
 const Register = () => {
+  // 1. Data structure ko backend ke hisab se rakha hai
   const [formData, setFormData] = useState({
-    name: '',
+    firstname: '',
+    lastname: '',
     email: '',
     password: '',
-    role: 'user' // Default role
+    role: 'user'
   });
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,34 +20,59 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 2. Data format karna: Postman wala structure yahan banao
+    const payload = {
+      email: formData.email,
+      fullname: {
+        firstname: formData.firstname,
+        lastname: formData.lastname
+      },
+      password: formData.password,
+      role: formData.role
+    };
+
     try {
-      // Backend registration endpoint
-      await axiosInstance.post('/auth/register', formData);
+      const response = await axiosInstance.post('/auth/register', payload);
       alert("Registration Successful! Please Login.");
       navigate('/login');
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed. Try again.");
+      console.log(err.response?.data); // Debugging ke liye best hai
+      alert(err.response?.data?.message || "Registration failed. Check console.");
     }
   };
 
   return (
-    <div className="min-h-[90vh] flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-[90vh] flex items-center justify-center bg-gray-50 px-4 py-10">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border">
         <h2 className="text-3xl font-black mb-2 text-center text-blue-600">Create Account</h2>
         <p className="text-gray-500 text-center mb-8">Join RentEase and start renting today.</p>
         
         <div className="space-y-4">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Full Name</label>
-            <input 
-              name="name"
-              type="text" 
-              required
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-              placeholder="John Doe"
-              onChange={handleChange}
-            />
+          {/* First Name & Last Name (Side by Side) */}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-gray-700">First Name</label>
+              <input 
+                name="firstname"
+                type="text" 
+                required
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                placeholder="John"
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-gray-700">Last Name</label>
+              <input 
+                name="lastname"
+                type="text" 
+                required
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                placeholder="Doe"
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           {/* Email */}
@@ -82,8 +110,8 @@ const Register = () => {
               onChange={handleChange}
               value={formData.role}
             >
-              <option value="user">Renter (Looking for furniture)</option>
-              <option value="vendor">Vendor (Want to list products)</option>
+              <option value="user">Renter (Customer)</option>
+              <option value="vendor">Vendor (Lister)</option>
             </select>
           </div>
 

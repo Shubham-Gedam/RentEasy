@@ -7,11 +7,11 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
   // 1. Agar user logged in nahi hai (user null hai)
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />; 
   }
 
   // 2. Agar user hai par uska role galat hai
-  if (allowedRole && user.role !== allowedRole) {
+ if (allowedRole && user.role !== allowedRole) {
     return <Navigate to="/" replace />;
   }
 
