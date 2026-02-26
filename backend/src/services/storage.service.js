@@ -1,54 +1,37 @@
 import ImageKit from "imagekit";
 import mongoose from "mongoose";
-import config from "../config/config.js"; // .js extension add kar le agar ES module hai
+import config from "../config/config.js";
 
 const imagekit = new ImageKit({
-  publicKey: config.IMAGEKIT_PUBLIC_KEY,
-  privateKey: config.IMAGEKIT_PRIVATE_KEY,
-  urlEndpoint: config.IMAGEKIT_URL_ENDPOINT,
+    publicKey: config.IMAGEKIT_PUBLIC_KEY,
+    privateKey: config.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: config.IMAGEKIT_URL_ENDPOINT
 });
 
-/**
- * Uploads a file buffer to ImageKit and returns the upload result
- * @param {Object} file - Multer file object (having .buffer and .originalname)
- * @param {string} [folder="RENTEASY"] - Optional folder name in ImageKit
- * @returns {Promise<Object>} - ImageKit upload response (contains url, fileId, etc.)
- * @throws {Error} If upload fails
- */
-async function uploadFile(file, folder = "RENTEASY") {
-  try {
-    if (!file || !file.buffer) {
-      throw new Error("Invalid file: buffer missing");
-    }
+async function uploadFile(file, folder = "products") {
+    return new Promise((resolve, reject) => {
+        // Galti yahan thi: fileName mein extension hona zaroori hai
+        // file.originalname se extension nikal ke ObjectId ke saath jod diya
+        const fileName = (new mongoose.Types.ObjectId()).toString() + "-" + file.originalname;
 
-    const uniqueFileName = `${new mongoose.Types.ObjectId().toString()}-${file.originalname}`;
-
-    const result = await new Promise((resolve, reject) => {
-      imagekit.upload(
-        {
-          file: file.buffer,
-          fileName: uniqueFileName,
-          folder: folder,
-          
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+        imagekit.upload({
+            file: file.buffer, // Direct buffer (multer memoryStorage)
+            fileName: fileName, 
+            folder: folder
+        }, (error, result) => {
+            if (error) {
+                console.error("ImageKit Error Details:", error);
+                reject(error);
+            } else {
+                // Return consistent object
+                resolve({
+                    url: result.url,
+                    fileId: result.fileId,
+                    thumbnailUrl: result.thumbnailUrl
+                });
+            }
+        });
     });
-
-    return {
-      url: result.url,
-      fileId: result.fileId,
-      name: result.name,
-      size: result.size,
-      thumbnailUrl: result.thumbnailUrl || result.url,
-    };
-  } catch (error) {
-    console.error("ImageKit upload failed:", error.message);
-    throw new Error(`Image upload failed: ${error.message}`);
-  }
 }
 
 export default uploadFile;

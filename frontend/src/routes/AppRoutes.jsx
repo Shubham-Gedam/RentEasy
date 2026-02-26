@@ -7,6 +7,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // import MainLayout from "../vendor/";
 import VendorLayout from "../vendor/VendorLayout";
 
+
 // Pages
 import Home from "../pages/Home";
 import ProductDetail from "../pages/ProductDetail";
@@ -23,6 +24,7 @@ import Products from "../vendor/Products";
 import Rentals from "../vendor/Rentals";
 import Maintenance from "../vendor/Maintenance";
 import ProtectedRoute from "./ProtectedRoute";
+
 
 
 const AppRoutes = () => {

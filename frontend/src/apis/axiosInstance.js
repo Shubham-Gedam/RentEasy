@@ -1,12 +1,22 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  // Backend URL + Prefix
   baseURL: 'http://localhost:3000/api', 
-  withCredentials: true, // Cookies aur Session ke liye zaroori hai
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  withCredentials: true,
 });
+
+// Request Interceptor: Har request se pehle token check karega
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); // Ya jis naam se tum save kar rahe ho
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;

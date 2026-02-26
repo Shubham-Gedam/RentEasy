@@ -1,36 +1,37 @@
 import ProductModel from "../models/product.model.js";
 import uploadFile from "../services/storage.service.js";
 
-// CREATE PRODUCT  ImageKit upload
 export const createProduct = async (req, res) => {
   try {
     const imageUrls = [];
-
-    if (req.files && req.files.length > 0) {
+    if (req.files) {
       for (const file of req.files) {
-        const uploaded = await uploadFile(file, "products"); 
-        imageUrls.push(uploaded.url);
+        const uploaded = await uploadFile(file, "products");
+        if (uploaded?.url) imageUrls.push(uploaded.url);
       }
     }
 
+    const { name, description, monthlyRent, securityDeposit, totalStock, category, city } = req.body;
+
     const product = await ProductModel.create({
-      ...req.body,
+      name,
+      description,
+      monthlyRent: Number(monthlyRent),
+      securityDeposit: Number(securityDeposit),
+      totalStock: Number(totalStock),
+      availableStock: Number(totalStock), // ✅ Required field in your schema
+      category, // Enum: Furniture or Appliance
+      city,
       images: imageUrls,
       vendor: req.user._id,
       createdBy: req.user._id,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      product,
-    });
+    res.status(201).json({ success: true, product });
   } catch (error) {
-    console.error("Create product error:", error.stack);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // 📦 GET ALL PRODUCTS (Public)
 export const getAllProducts = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
@@ -6,29 +6,58 @@ import {
   Truck,
   RotateCcw,
   CreditCard,
+  Loader2,
 } from "lucide-react";
-import useProductStore from "../store/productStore";
 import useCartStore from "../store/cartStore";
+import axiosInstance from "../apis/axiosInstance"; // Apne axios instance ka path check kar lena
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products } = useProductStore();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const addToCart = useCartStore((state) => state.addToCart);
 
-  // Find product from store
-  const product = products.find((p) => p.id === Number(id));
+  // 🔄 Backend se product mangwana
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await axiosInstance.get(`/products/${id}`);
+        // Agar backend response { success: true, product: {...} } hai
+        setProduct(res.data.product || res.data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!product)
+    if (id) fetchProductDetails();
+  }, [id]);
+
+  if (loading) {
     return (
-      <div className="p-20 text-center font-bold text-2xl">
-        Product not found!
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-blue-600" size={40} />
       </div>
     );
+  }
+
+  if (!product) {
+    return (
+      <div className="p-20 text-center">
+        <h2 className="text-2xl font-bold mb-4">Product not found!</h2>
+        <button onClick={() => navigate("/")} className="text-blue-600 font-bold underline">
+          Go back to Home
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-12">
+    <div className="max-w-7xl mx-auto px-8 py-12 text-left">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -39,9 +68,9 @@ const ProductDetail = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Left: Product Image */}
-        <div className="rounded-[40px] overflow-hidden bg-white shadow-2xl shadow-gray-100 group">
+        <div className="rounded-[40px] overflow-hidden bg-white shadow-2xl shadow-gray-100 group h-[500px]">
           <img
-            src={product.imageUrl || product.image}
+            src={product.images?.[0] || 'https://via.placeholder.com/600'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
@@ -58,15 +87,13 @@ const ProductDetail = () => {
 
           <div className="flex items-baseline gap-2 mb-8">
             <span className="text-4xl font-black text-blue-600">
-              ₹{product.rent || product.baseRent}
+              ₹{product.monthlyRent}
             </span>
             <span className="text-lg text-gray-400 font-medium">/ month</span>
           </div>
 
           <p className="text-gray-500 text-lg leading-relaxed mb-10">
-            Premium quality {product.name.toLowerCase()} for your home. Why pay
-            full price when you can enjoy luxury with zero commitment? Free
-            delivery and installation included.
+            {product.description || `Premium quality ${product.name} for your home. Why pay full price when you can enjoy luxury with zero commitment? Free delivery and installation included.`}
           </p>
 
           {/* Features Grid */}
@@ -101,9 +128,13 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          <p className="mt-6 text-center text-gray-400 text-sm font-medium flex items-center justify-center gap-2">
+          <p className="mt-6 text-gray-400 text-sm font-medium flex items-center justify-start gap-2">
             <CreditCard size={16} /> Refundable Security Deposit: ₹
-            {product.deposit || "1500"}
+            {product.securityDeposit || "0"}
+          </p>
+          
+          <p className="mt-2 text-gray-400 text-sm font-medium flex items-center justify-start gap-2 uppercase tracking-tighter">
+            📍 Available in: {product.city}
           </p>
         </div>
       </div>

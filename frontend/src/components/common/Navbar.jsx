@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import useProductStore from "../../store/productStore";
 import useAuthStore from "../../store/authStore";
 import useCartStore from "../../store/cartStore";
+import useModalStore from "../../store/useModalStore"; 
+
 import {
   Search,
   ShoppingCart,
@@ -16,8 +18,10 @@ import {
 
 const Navbar = () => {
   const setSearchQuery = useProductStore((state) => state.setSearchQuery);
-  const { user, logout } = useAuthStore(); // setRole nikal diya kyunki switch nahi karna ab
+  const { user, logout } = useAuthStore();
   const cart = useCartStore((state) => state.cart);
+  const openPostAd = useModalStore((state) => state.openPostAd); // 👈 Modal open function
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,7 +68,7 @@ const Navbar = () => {
               {/* Role-Based Links Section */}
               <div className="flex items-center gap-6 border-r pr-6 border-gray-100">
                 {user?.role === "vendor" ? (
-                  // Vendor Specific Links
+                  // ✅ Vendor Specific Links
                   <>
                     <Link
                       to="/vendor/dashboard"
@@ -73,16 +77,18 @@ const Navbar = () => {
                       <LayoutDashboard size={16} />
                       Dashboard
                     </Link>
-                    <Link
-                      to="/vendor/add-product"
+                    
+                    {/* 👇 "Post Ad" now triggers the Modal instead of navigation */}
+                    <button
+                      onClick={openPostAd}
                       className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-blue-600 transition-all shadow-lg shadow-gray-200"
                     >
                       <PlusCircle size={14} />
                       Post Ad
-                    </Link>
+                    </button>
                   </>
                 ) : (
-                  // Customer Specific Links
+                  // ✅ Customer Specific Links
                   <>
                     <Link
                       to="/rentals"
@@ -105,7 +111,7 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* --- Modern Profile Dropdown --- */}
+              {/* Profile Dropdown */}
               <div className="relative group">
                 <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 pr-2 rounded-full transition-all">
                   <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold border-2 border-white shadow-sm">
