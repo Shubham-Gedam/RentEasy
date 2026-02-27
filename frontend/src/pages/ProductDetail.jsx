@@ -9,7 +9,8 @@ import {
   Loader2,
 } from "lucide-react";
 import useCartStore from "../store/cartStore";
-import axiosInstance from "../apis/axiosInstance"; // Apne axios instance ka path check kar lena
+import axiosInstance from "../apis/axiosInstance";
+import { toast } from "react-toastify"; // 💡 Toast for alerts
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -25,10 +26,10 @@ const ProductDetail = () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(`/products/${id}`);
-        // Agar backend response { success: true, product: {...} } hai
         setProduct(res.data.product || res.data);
       } catch (err) {
         console.error("Fetch error:", err);
+        toast.error("Product load nahi hua!");
       } finally {
         setLoading(false);
       }
@@ -36,6 +37,15 @@ const ProductDetail = () => {
 
     if (id) fetchProductDetails();
   }, [id]);
+
+  // 💡 FUNCTION: Rent Now handling
+  const handleRentNow = () => {
+    // Yahan check kar sakte ho agar user logged in hai ya nahi
+    // Agar nahi hai, toh login page pe bhejo
+    
+    // Sab sahi hai toh checkout page pe details leke jao
+    navigate(`/checkout/${product._id}`); 
+  };
 
   if (loading) {
     return (
@@ -93,49 +103,27 @@ const ProductDetail = () => {
           </div>
 
           <p className="text-gray-500 text-lg leading-relaxed mb-10">
-            {product.description || `Premium quality ${product.name} for your home. Why pay full price when you can enjoy luxury with zero commitment? Free delivery and installation included.`}
+            {product.description || `Premium quality ${product.name} for your home.`}
           </p>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-2 gap-6 mb-10">
-            <div className="flex items-center gap-3 text-sm font-bold text-gray-700">
-              <div className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
-                <ShieldCheck size={20} />
-              </div>
-              Free Maintenance
-            </div>
-            <div className="flex items-center gap-3 text-sm font-bold text-gray-700">
-              <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
-                <RotateCcw size={20} />
-              </div>
-              Easy Returns
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="flex-1 bg-gray-900 text-white py-5 rounded-[24px] font-black text-lg hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200 transition-all active:scale-95">
+            <button 
+              onClick={handleRentNow} // 💡 UPDATED: onClick added
+              className="flex-1 bg-gray-900 text-white py-5 rounded-[24px] font-black text-lg hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200 transition-all active:scale-95"
+            >
               Rent Now
             </button>
             <button
               onClick={() => {
                 addToCart(product);
-                alert("Item added to bag! 🛒");
+                toast.success("Item added to bag! 🛒");
               }}
               className="flex-1 bg-white border-2 border-gray-100 py-5 rounded-[24px] font-black text-lg hover:border-blue-600 hover:text-blue-600 transition-all"
             >
               Add to Cart
             </button>
           </div>
-
-          <p className="mt-6 text-gray-400 text-sm font-medium flex items-center justify-start gap-2">
-            <CreditCard size={16} /> Refundable Security Deposit: ₹
-            {product.securityDeposit || "0"}
-          </p>
-          
-          <p className="mt-2 text-gray-400 text-sm font-medium flex items-center justify-start gap-2 uppercase tracking-tighter">
-            📍 Available in: {product.city}
-          </p>
         </div>
       </div>
     </div>

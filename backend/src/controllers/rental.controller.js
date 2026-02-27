@@ -110,6 +110,7 @@ export async function getMyRentalsController(req, res) {
   activeCount: rentals.filter(r => r.status === 'ACTIVE').length,
   data: rentals.map(r => ({
     id: r._id,
+    imageUrl: r.product?.images[0] || 'default_url',
     productName: r.product.name,
     category: r.product.category,
     tenure: r.tenure,

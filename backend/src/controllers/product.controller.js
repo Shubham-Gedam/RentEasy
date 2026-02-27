@@ -26,6 +26,7 @@ export const createProduct = async (req, res) => {
       vendor: req.user._id,
       createdBy: req.user._id,
     });
+    console.log("Image URLs:", imageUrls);
 
     res.status(201).json({ success: true, product });
   } catch (error) {
