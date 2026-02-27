@@ -16,6 +16,7 @@ const Rentals = () => {
       // Ensure backend provides res.data.rentals
       setRentals(res.data.rentals || []);
     } catch (err) {
+      err
       toast.error("Requests load nahi ho payi!");
     } finally {
       setLoading(false);
@@ -39,6 +40,7 @@ const Rentals = () => {
         prev.map(order => order._id === id ? { ...order, status } : order)
       );
     } catch (err) {
+      err
       toast.error("Status update fail ho gaya!");
     }
   };
@@ -75,7 +77,7 @@ const Rentals = () => {
               <div className="flex items-center gap-8">
                 <div className="relative">
                     {/* Backend field 'images' handle kiya */}
-                    <img src={order.product?.images?.[0]?.url || order.image} className="w-24 h-24 rounded-[32px] object-cover shadow-lg" alt="" />
+                    <img src={order.product?.images?.[0]?.url || order.image} className="w-24 h-24 rounded-32px object-cover shadow-lg" alt="" />
                     <div className="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-xl shadow-md border border-gray-50 text-blue-600">
                         <Package size={16} />
                     </div>

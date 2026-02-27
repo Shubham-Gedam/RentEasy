@@ -24,9 +24,10 @@ const VendorProducts = () => {
   const fetchMyProducts = async () => {
     try {
       setLoading(true);
-      const res = await vendorApi.getVendorProducts(); 
+      const res = await vendorApi.getMyProducts(); 
       setProducts(res.data.products || []);
     } catch (err) {
+      err
       toast.error("Products load nahi ho paye!");
     } finally {
       setLoading(false);
@@ -44,6 +45,7 @@ const VendorProducts = () => {
       toast.success("Item hat gaya!");
       setProducts(products.filter(item => item._id !== id));
     } catch (err) {
+      err
       toast.error("Delete fail ho gaya!");
     }
   };
@@ -126,7 +128,7 @@ const VendorProducts = () => {
 
       {/* Modal - Isko Form Fields ke saath update kiya */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[120] flex justify-end">
+        <div className="fixed inset-0 z-120 flex justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
           <div className="relative w-full max-w-md bg-white h-full p-10 shadow-2xl animate-in slide-in-from-right duration-300 overflow-y-auto">
              <div className="flex justify-between items-center mb-10">
