@@ -100,28 +100,31 @@ export async function returnRentalController(req,res){
 // ✅ GET MY RENTALS
 export async function getMyRentalsController(req, res) {
   try {
-    
     const userId = req.user._id;
 
+    // Product ko populate karna zaroori hai images ke liye
     const rentals = await Rental.find({ user: userId }).populate("product");
+
     res.status(200).json({
-  success: true,
-  count: rentals.length,
-  activeCount: rentals.filter(r => r.status === 'ACTIVE').length,
-  data: rentals.map(r => ({
-    id: r._id,
-    imageUrl: r.product?.images[0] || 'default_url',
-    productName: r.product.name,
-    category: r.product.category,
-    tenure: r.tenure,
-    startDate: r.startDate.toISOString().split('T')[0],
-    endDate: r.endDate.toISOString().split('T')[0],
-    totalAmount: r.totalAmount,
-    status: r.status,
-    paymentStatus: r.paymentStatus
-  }))
-});
+      success: true,
+      count: rentals.length,
+      data: rentals.map(r => ({
+        id: r._id,
+        // Product null ho sakta hai agar product delete ho gaya ho
+        imageUrl: r.product?.images?.[0] || 'https://via.placeholder.com/150',
+        productName: r.product?.name || "Product Unavailable",
+        category: r.product?.category || "N/A",
+        tenure: r.tenure || 0,
+        // Dates ko safely handle karo
+        startDate: r.startDate ? new Date(r.startDate).toISOString().split('T')[0] : "N/A",
+        endDate: r.endDate ? new Date(r.endDate).toISOString().split('T')[0] : "N/A",
+        totalAmount: r.totalAmount || 0,
+        status: r.status || "PENDING",
+        paymentStatus: r.paymentStatus || "UNPAID"
+      }))
+    });
   } catch (error) {
-    res.status(500).json({ message: "Auth failed or Server Error" });
+    console.error("Rental Fetch Error:", error);
+    res.status(500).json({ message: "Server Error: Rental data fetch failed" });
   }
 }

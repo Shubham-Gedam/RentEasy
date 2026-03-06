@@ -2,20 +2,22 @@ import axiosInstance from './axiosInstance';
 
 const vendorApi = {
     // 1. Vendor ke apne products dekhne ke liye
-    // Backend: router.get("/products", ...)
     getMyProducts: () => axiosInstance.get('/vendor/products'),
 
-    // 2. Delivery status update karne ke liye
-    // Backend: router.put("/rental/:id/delivery", ...)
-    updateDeliveryStatus: (id, status) => 
-        axiosInstance.put(`/vendor/rental/${id}/delivery`, { status }),
+    // 2. IMPORTANT: Vendor ke orders/rentals fetch karne ke liye 
+    // (Check karna backend mein iski route bani hai ya nahi)
+    getVendorOrders: () => axiosInstance.get('/vendor/rentals'), 
 
-    // 3. Damage report karne ke liye
-    // Backend: router.put("/rental/:id/damage", ...)
-    reportDamage: (id, damageData) => 
-        axiosInstance.put(`/vendor/rental/${id}/damage`, damageData),
+    // 3. Delivery status update karne ke liye
+    // Tere backend route: /vendor/rental/:id/delivery
+    updateDelivery: (id) => axiosInstance.put(`/vendor/rental/${id}/delivery`),
 
-    // 4. Maintenance records dekhne ke liye
+    // 4. Damage report karne ke liye
+    // Tere backend route: /vendor/rental/:id/damage
+    reportDamage: (id, description) => 
+        axiosInstance.put(`/vendor/rental/${id}/damage`, { description }),
+
+    // 5. Maintenance records
     getMaintenance: () => axiosInstance.get('/vendor/maintenance'),
 };
 

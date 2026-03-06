@@ -149,3 +149,19 @@ export const updatePickupDate = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const getVendorRentals = async (req, res) => {
+  try {
+    // Sirf wahi rentals dikhao jahan product ka vendor current logged-in user (vendor) ho
+    const rentals = await Rental.find({ vendor: req.user._id })
+      .populate("user", "fullname email")
+      .populate("product", "name images");
+
+    res.status(200).json({
+      success: true,
+      rentals
+    });
+  } catch (error) {
+    console.error("Vendor Rental Fetch Error:", error);
+    res.status(500).json({ message: "Rentals fetch karne mein error aaya" });
+  }
+};

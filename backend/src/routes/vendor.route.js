@@ -14,6 +14,9 @@ router.put("/rental/:id/pickup", authMiddlware.protect, authMiddlware.authorizeR
 
 router.put("/rental/:id/damage", authMiddlware.protect, authMiddlware.authorizeRoles("vendor"), vendorController.reportDamage);
 
+// Isse baaki routes ke beech mein daal do
+router.get("/rentals", authMiddlware.protect, authMiddlware.authorizeRoles("vendor"), vendorController.getVendorRentals);
+
 
 
 export default router;
