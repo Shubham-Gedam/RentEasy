@@ -31,7 +31,7 @@ const Rentals = () => {
   const handleStatusUpdate = async (id, status) => {
     try {
       // Backend call to update status
-      await vendorApi.updateDeliveryStatus(id, status);
+      await vendorApi.updateDelivery(id);
       
       toast.success(`Order ${status} successfully!`);
       

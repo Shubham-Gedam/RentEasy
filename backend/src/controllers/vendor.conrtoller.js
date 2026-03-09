@@ -37,22 +37,19 @@ export const updateDeliveryStatus = async (req, res) => {
 /* ---------------- GET VENDOR MAINTENANCE ---------------- */
 export const getVendorMaintenance = async (req, res) => {
   try {
-    const requests = await Maintenance.find()
+    // Agar humne createRequest mein 'vendor' save kiya hai, toh query simple hogi:
+    const requests = await Maintenance.find({ vendor: req.user._id })
+      .populate("user", "fullname email")
       .populate({
         path: "rental",
-        populate: {
-          path: "product",
-          match: { vendor: req.user._id },
-        },
+        populate: { path: "product", select: "name images" }
       })
       .sort({ createdAt: -1 });
 
-    const filtered = requests.filter((r) => r.rental?.product);
-
     res.status(200).json({
       success: true,
-      count: filtered.length,
-      requests: filtered,
+      count: requests.length,
+      requests: requests, // filtered karne ki zaroorat nahi padegi
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

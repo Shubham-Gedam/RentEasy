@@ -19,6 +19,8 @@ const vendorApi = {
 
     // 5. Maintenance records
     getMaintenance: () => axiosInstance.get('/vendor/maintenance'),
+    
+    updateMaintenanceStatus: (id, data) => axiosInstance.put(`/maintenance/status/${id}`, data),
 };
 
 export default vendorApi;

@@ -13,6 +13,12 @@ const maintenanceSchema = new mongoose.Schema(
       ref: "Rental", // rental model ka reference
       required: true,
     },
+    
+    vendor: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User", 
+      required: true 
+    },
 
     issueDescription: {
       type: String,

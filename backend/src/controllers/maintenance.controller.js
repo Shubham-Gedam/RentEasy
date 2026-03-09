@@ -1,24 +1,49 @@
 import Maintenance from "../models/maintenance.model.js";
+import Rental from "../models/rental.model.js"
 
 /* ---------------- CREATE REQUEST ---------------- */
 export const createRequest = async (req, res) => {
   try {
     const { rentalId, issueDescription, priority } = req.body;
 
+    // 1. Validation check
+    if (!rentalId || !issueDescription) {
+      return res.status(400).json({ message: "Rental ID aur Description zaroori hai!" });
+    }
+
+    // 2. Rental aur Product ko dhundo (Vendor ID nikaalne ke liye)
+    // IMPORTANT: Check karo ki 'req.user._id' hai ya 'req.user.id'
+    const userId = req.user._id || req.user.id; 
+
+    const rental = await Rental.findById(rentalId).populate("product");
+    
+    if (!rental) {
+      return res.status(404).json({ message: "Rental record nahi mila!" });
+    }
+
+    // 3. Maintenance entry create karo
+    // Note: 'vendor' field schema mein add ki hai na?
     const request = await Maintenance.create({
-      user: req.user.id,
+      user: userId,
       rental: rentalId,
+      vendor: rental.product?.vendor, // Safe navigation operator use kiya hai
       issueDescription,
-      priority,
+      priority: priority || "MEDIUM",
     });
 
     res.status(201).json({
       success: true,
-      message: "Maintenance request created",
+      message: "Maintenance request created successfully",
       request,
     });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("MAINTENANCE_CREATE_ERROR:", error); // Terminal mein error check karo
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error", 
+      error: error.message 
+    });
   }
 };
 
