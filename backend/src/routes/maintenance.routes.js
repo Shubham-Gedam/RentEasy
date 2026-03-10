@@ -11,6 +11,6 @@ router.get("/my", authMiddleware.protect, maintenanceController.getUserRequests)
 // Common route (admin + vendor dono access kar sake)
 router.get("/", authMiddleware.protect, authMiddleware.authorizeRoles("admin", "vendor"), maintenanceController.getAllRequests);
 
-router.put("/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin", "vendor"),maintenanceController.updateStatus);
+router.put("/status/:id", authMiddleware.protect, authMiddleware.authorizeRoles("admin", "vendor"), maintenanceController.updateStatus);
 
 export default router;
